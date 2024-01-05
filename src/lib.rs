@@ -10,6 +10,7 @@ pub enum COMMAND {
     LIST,
     CLEAR,
     DELETE,
+    TOGGLE,
 }
 
 pub fn run_command(command: &COMMAND, arg: Option<String>) {
@@ -18,6 +19,25 @@ pub fn run_command(command: &COMMAND, arg: Option<String>) {
         COMMAND::LIST => list_todos(),
         COMMAND::CLEAR => clear_todos(),
         COMMAND::DELETE => delete_todo(&arg),
+        COMMAND::TOGGLE => toggle_todo(&arg),
+    }
+}
+
+fn toggle_todo(todo_selector: &Option<String>) {
+    if let Some(todo) = todo_selector {
+        if todo.is_empty() {
+            return ();
+        }
+
+        let mut file_handler = TodoFileHandler::new();
+
+        match todo.parse::<usize>() {
+            Ok(todo_selector_num) => match file_handler.toggle_todo(todo_selector_num) {
+                Ok(_) => println!("Todo status changed!"),
+                Err(err) => panic!("{err}"),
+            },
+            Err(err) => panic!("{err}"),
+        };
     }
 }
 
@@ -26,7 +46,6 @@ fn delete_todo(todo_selector: &Option<String>) {
         if todo.is_empty() {
             return ();
         }
-        println!("{:?}", todo_selector);
         let mut file_handler = TodoFileHandler::new();
 
         match todo.parse::<usize>() {
@@ -67,11 +86,8 @@ pub fn add_todo(todo: &Option<String>) {
         }
         let mut file_handler = TodoFileHandler::new();
 
-        match file_handler.write_to_todos(todo.to_string()) {
-            Ok(_) => println!("Wrote to file"),
-            Err(e) => {
-                eprintln!("{e}");
-            }
+        if file_handler.write_to_todos(todo.to_string()).is_ok() {
+            println!("Wrote to file")
         }
     }
 }

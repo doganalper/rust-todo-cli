@@ -30,6 +30,7 @@ impl Args {
             "list" => Some(COMMAND::LIST),
             "clear" => Some(COMMAND::CLEAR),
             "remove" => Some(COMMAND::DELETE),
+            "toggle" => Some(COMMAND::TOGGLE),
             _ => panic!("This command is not supported"),
         };
         self.rest = Some(rest);

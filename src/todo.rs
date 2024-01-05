@@ -16,6 +16,14 @@ fn parse_line(split_line: Vec<&str>) -> Result<(u32, bool, String), Box<dyn Erro
 }
 
 impl Todo {
+    pub fn new(id: u32, content: &String) -> Self {
+        Todo {
+            id,
+            content: content.clone(),
+            status: false,
+        }
+    }
+
     pub fn from(line: String) -> Self {
         let split: Vec<&str> = line.split_whitespace().collect();
 

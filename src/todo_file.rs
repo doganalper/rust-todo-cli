@@ -4,7 +4,6 @@ use std::{
     fs::{self, File, OpenOptions},
     io::Write,
     path::{Path, PathBuf},
-    usize,
 };
 
 use crate::todo::Todo;
@@ -91,15 +90,17 @@ impl TodoFileHandler {
         if !self.file_exists() {
             self.create_todos_file()?;
         }
+
         let mut file = OpenOptions::new()
             .append(true)
             .read(true)
             .open(self.path.take().unwrap())?;
 
-        let todo_count = self.get_todo_count().to_string();
+        let todo_count = self.get_todo_count();
 
-        let todo_with_count = format!("{} -> (❌) {}\n", todo_count, todo);
-        file.write_all(todo_with_count.as_bytes())?;
+        let new_todo = Todo::new(todo_count, &todo);
+
+        file.write_all(new_todo.as_line(true).as_bytes())?;
 
         Ok(())
     }
@@ -118,6 +119,26 @@ impl TodoFileHandler {
                 Ordering::Greater => {
                     todo.decrease_index();
                 }
+            }
+
+            new_content.push_str(&todo.as_line(true));
+        }
+
+        fs::write(self.path.take().unwrap(), new_content)?;
+
+        Ok(())
+    }
+
+    pub fn toggle_todo(&mut self, line_num: usize) -> Result<(), Box<dyn Error>> {
+        if !self.file_exists() {
+            panic!("No todos exist.");
+        }
+
+        let mut new_content = String::new();
+        for (idx, line) in self.get_todos_content()?.lines().enumerate() {
+            let mut todo = Todo::from(line.to_string());
+            if idx.cmp(&(line_num - 1)) == Ordering::Equal {
+                todo.toggle_status();
             }
 
             new_content.push_str(&todo.as_line(true));
