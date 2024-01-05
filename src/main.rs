@@ -1,19 +1,14 @@
 mod args;
 
 use args::Args;
+use todo::run_command;
 
 fn main() {
     let mut args = Args::new();
 
     match args.parse() {
         Ok(_) => {
-            println!("command: {:?}", args.command);
-
-            if let Some(args) = args.rest {
-                for arg in args {
-                    println!("Rest: {arg}");
-                }
-            }
+            run_command(&(args.command.unwrap()), args.rest);
         }
         Err(err) => eprintln!("{err}"),
     };

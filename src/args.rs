@@ -1,8 +1,11 @@
+use core::panic;
 use std::env;
 
+use todo::COMMAND;
+
 pub struct Args {
-    pub command: Option<String>,
-    pub rest: Option<Vec<String>>,
+    pub command: Option<COMMAND>,
+    pub rest: Option<String>,
 }
 
 impl Args {
@@ -22,23 +25,27 @@ impl Args {
 
         let (command, rest) = self.seperate_args(args);
 
-        self.command = Some(command);
+        self.command = match command.as_str() {
+            "add" => Some(COMMAND::ADD),
+            "list" => Some(COMMAND::LIST),
+            "clear" => Some(COMMAND::CLEAR),
+            "remove" => Some(COMMAND::DELETE),
+            _ => panic!("This command is not supported"),
+        };
         self.rest = Some(rest);
 
         Ok(())
     }
 
-    fn seperate_args(&self, args: Vec<String>) -> (String, Vec<String>) {
+    fn seperate_args(&self, args: Vec<String>) -> (String, String) {
         let command = args[1].clone();
-        let rest = args
-            .clone()
-            .iter()
-            .enumerate()
-            .filter(|(i, _)| i > &1)
-            .map(|(_, e)| e.clone())
-            .collect();
 
-        (command, rest)
+        let mut rest = Vec::new();
+        for (_, arg) in args.clone().into_iter().enumerate().filter(|(i, _)| i > &1) {
+            rest.push(arg)
+        }
+
+        (command, rest.join(" "))
     }
 }
 
@@ -50,12 +57,9 @@ mod tests {
     fn should_seperate_multiple_args() {
         let args = Args::new();
 
-        let expected_result = (
-            String::from("add"),
-            vec![String::from("test1"), String::from("test2")],
-        );
+        let expected_result = (String::from("add"), String::from("test1 test2"));
         let actual_result = args.seperate_args(vec![
-            String::from("test"),
+            String::from("test/file/path"),
             String::from("add"),
             String::from("test1"),
             String::from("test2"),
