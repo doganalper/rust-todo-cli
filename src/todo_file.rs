@@ -2,18 +2,18 @@ use std::{
     cmp::Ordering,
     error::Error,
     fs::{self, File, OpenOptions},
-    io::{Read, Write},
+    io::Write,
     path::{Path, PathBuf},
     usize,
 };
 
 use crate::todo::Todo;
 
-pub struct FileHandler {
+pub struct TodoFileHandler {
     path: Option<PathBuf>,
 }
 
-impl FileHandler {
+impl TodoFileHandler {
     pub fn new() -> Self {
         Self { path: None }
     }

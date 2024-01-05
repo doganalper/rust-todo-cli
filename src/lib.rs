@@ -1,9 +1,9 @@
-mod file;
 mod todo;
+mod todo_file;
 
 use core::panic;
 
-use file::FileHandler;
+use todo_file::TodoFileHandler;
 
 pub enum COMMAND {
     ADD,
@@ -27,7 +27,7 @@ fn delete_todo(todo_selector: &Option<String>) {
             return ();
         }
         println!("{:?}", todo_selector);
-        let mut file_handler = FileHandler::new();
+        let mut file_handler = TodoFileHandler::new();
 
         match todo.parse::<usize>() {
             Ok(todo_selector_num) => match file_handler.delete_todo(todo_selector_num) {
@@ -40,7 +40,7 @@ fn delete_todo(todo_selector: &Option<String>) {
 }
 
 fn clear_todos() {
-    let mut file_handler = FileHandler::new();
+    let mut file_handler = TodoFileHandler::new();
 
     if file_handler.clear_todos().is_ok() {
         println!("Todos cleared!");
@@ -48,7 +48,7 @@ fn clear_todos() {
 }
 
 fn list_todos() {
-    let mut file_handler = FileHandler::new();
+    let mut file_handler = TodoFileHandler::new();
 
     if let Ok(todos_content) = file_handler.get_todos_content() {
         if todos_content.is_empty() {
@@ -65,7 +65,7 @@ pub fn add_todo(todo: &Option<String>) {
             eprintln!("Cannot add empty todo");
             return ();
         }
-        let mut file_handler = FileHandler::new();
+        let mut file_handler = TodoFileHandler::new();
 
         match file_handler.write_to_todos(todo.to_string()) {
             Ok(_) => println!("Wrote to file"),
