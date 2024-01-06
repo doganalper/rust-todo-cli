@@ -1,7 +1,10 @@
 mod args;
+mod commands;
+mod todo;
+mod todo_file;
 
 use args::Args;
-use todo::run_command;
+use commands::run_command;
 
 fn main() {
     let mut args = Args::new();

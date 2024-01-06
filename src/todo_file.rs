@@ -1,3 +1,4 @@
+use core::panic;
 use std::{
     cmp::Ordering,
     error::Error,
@@ -134,6 +135,11 @@ impl TodoFileHandler {
             panic!("No todos exist.");
         }
 
+        if line_num > self.get_todo_count() as usize {
+            eprintln!("You don't have that much todo!");
+            std::process::exit(0);
+        }
+
         let mut new_content = String::new();
         for (idx, line) in self.get_todos_content()?.lines().enumerate() {
             let mut todo = Todo::from(line.to_string());
@@ -147,5 +153,51 @@ impl TodoFileHandler {
         fs::write(self.path.take().unwrap(), new_content)?;
 
         Ok(())
+    }
+
+    pub fn toggle_todo_active(&mut self, line_num: usize) -> Result<(), Box<dyn Error>> {
+        if !self.file_exists() {
+            panic!("No todos exist.");
+        }
+
+        let mut new_content = String::new();
+        for (idx, line) in self.get_todos_content()?.lines().enumerate() {
+            let mut todo = Todo::from(line.to_string());
+            let is_equal = idx.cmp(&(line_num - 1)) == Ordering::Equal;
+            if is_equal {
+                todo.toggle_active_status();
+            }
+
+            if !is_equal && todo.is_active {
+                todo.toggle_active_status();
+            }
+
+            new_content.push_str(&todo.as_line(true));
+        }
+
+        fs::write(self.path.take().unwrap(), new_content)?;
+
+        Ok(())
+    }
+
+    pub fn get_active_todo(&mut self) -> Option<String> {
+        if !self.file_exists() {
+            panic!("No todos exist.");
+        }
+
+        match self.get_todos_content() {
+            Ok(content) => {
+                for line in content.lines() {
+                    let todo = Todo::from(line.to_string());
+
+                    if todo.is_active {
+                        return Some(todo.as_line(true));
+                    }
+                }
+
+                None
+            }
+            Err(err) => panic!("{err}"),
+        }
     }
 }

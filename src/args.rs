@@ -1,7 +1,7 @@
 use core::panic;
 use std::env;
 
-use todo::COMMAND;
+use crate::commands::COMMAND;
 
 pub struct Args {
     pub command: Option<COMMAND>,
@@ -25,14 +25,16 @@ impl Args {
 
         let (command, rest) = self.seperate_args(args);
 
-        self.command = match command.as_str() {
-            "add" => Some(COMMAND::ADD),
-            "list" => Some(COMMAND::LIST),
-            "clear" => Some(COMMAND::CLEAR),
-            "remove" => Some(COMMAND::DELETE),
-            "toggle" => Some(COMMAND::TOGGLE),
+        self.command = Some(match command.as_str() {
+            "add" => COMMAND::ADD,
+            "list" => COMMAND::LIST,
+            "clear" => COMMAND::CLEAR,
+            "remove" => COMMAND::DELETE,
+            "toggle" => COMMAND::TOGGLE,
+            "activate" => COMMAND::ACTIVATE,
+            "active" => COMMAND::ACTIVE,
             _ => panic!("This command is not supported"),
-        };
+        });
         self.rest = Some(rest);
 
         Ok(())
